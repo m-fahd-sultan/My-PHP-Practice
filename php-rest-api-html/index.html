@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>PHP & Ajax CRUD</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <table id="main" border="0" cellspacing="0">
+    <tr>
+      <td id="header">
+        <h1>PHP REST API CRUD</h1>
+
+        <div id="search-bar">
+          <label>Search :</label>
+          <input type="text" id="search" autocomplete="off">
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td id="table-form">
+        <form id="addForm">
+          Name : <input type="text" name="sname" id="sname">
+          Age : <input type="number" name="sage" id="sage">
+          City : <input type="text" name="scity" id="scity">
+          <input type="submit" id="save-button" value="Save">
+        </form>
+      </td>
+    </tr>
+    <tr>
+      <td id="table-data">
+       
+      </td>
+    </tr>
+  </table>
+
+  <div id="error-message" class="messages"></div>
+  <div id="success-message" class="messages"></div>
+
+  <!-- Popup Modal Box for Update the Records -->
+  <div id="modal">
+    <div id="modal-form">
+      <h2>Edit Form</h2>
+      <form action="" id="edit-form">
+      <table cellpadding="10px" width="100%">
+       
+      </form>
+      <div id="close-btn">X</div>
+    </div>
+  </div>
+
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript">
+  //Fetch All Records
+  $(document).ready(function() {
+    function loaddata(){
+      $.ajax({
+        url:"api-fetch-all.php",
+        type:"POST",
+        success:function(data){
+          $("#table-data").html(data);
+        }
+      });
+    }
+    loaddata();
+
+  //Insert New Record
+  $("#save-button").on("click",function (e){
+    e.preventDefault();
+    var name = $("#sname").val();
+    var age = $("#sage").val();
+    var city = $("#scity").val();
+    if(name == "" || age == "" || city == ""){
+      $("#error-message").html("All fields are required").show();
+      return false;
+    }
+    $.ajax({
+      url:"api-insert.php",
+      type:"POST",
+      data:{sname:name, sage:age, scity: city},
+      success:function(data){
+        if(data == 1){
+          $("#addForm").trigger("reset");
+          $("#success-message").html("Data Inserted successfully").slideDown();
+          loaddata();
+
+        }
+        else{
+          $("#error-message").html("Data Inserted unsuccessfully").show();
+        }
+      }
+      
+        });
+        
+        
+  });
+
+
+  //Delete Record
+  $(document).on("click", ".delete-btn", function(){
+    if(confirm("Are you sure to delete this record?")){
+    var id = $(this).data("id");
+    var element = $(this);
+    $.ajax({
+      url:"api-delete.php",
+      type:"POST",
+      data:{id:id},
+
+      success:function(data){
+        if(data == 1){
+          $(element).closest("tr").fadeOut(); // closest means delete the particular row.
+        }
+        else{
+          $("#error-message").html("Data Deleted unsuccessfully").show();
+        }
+      }
+    });
+  }
+  });
+  
+
+  //Fetch Single Record : Show in Modal Box
+  $(document).on("click", ".edit-btn", function(){
+    $("#modal").show();
+    var studentId = $(this).data("id"); // id from update button
+    $.ajax({
+      url:"api-fetch-single.php",
+      type:"POST",
+      data:{id:studentId},
+      success:function(data){
+        $("#edit-form table").html(data);
+      }
+    });
+  });
+  //Hide Modal Box
+  $("#close-btn").on("click", function(){
+    $("#modal").hide();
+  });
+
+  //Update Record
+  $(document).on("click","#edit-submit", function(){
+    var stuid = $("#edit-id").val();
+    var studentName = $("#edit-name").val();
+    var studentAge = $("#edit-age").val();
+    var studentCity = $("#edit-city").val();
+    $.ajax({
+      url:"api-update.php",
+      type:"POST",
+      data:{id:stuid, name:studentName, age:studentAge, city:studentCity},
+      success:function(data){
+        if(data == 1){
+          $("#modal").hide();
+        
+        
+        }
+        else{
+          $("#error-message").html("Data Updated unsuccessfully").show();
+        }
+      }
+    });
+  });
+
+  //Live Search Record
+  $("#search").on("keyup", function(){
+    var search_term = $(this).val();
+
+    $.ajax({
+      url:"api-search.php",
+      type:"POST",
+      data:{search:search_term},
+      success:function(data){
+        $("#table-data").html(data);
+      }
+    });
+  });
+
+
+  });
+</script>
+</body>
+</html>

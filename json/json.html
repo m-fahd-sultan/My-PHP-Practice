@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f4;
+        height: 100vh;
+        margin: auto;
+    }
+   
+    div {
+        height: auto;
+        width: 700px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: #333 solid 1px;
+    }
+     h2 {
+        color: #333;
+    }
+    p {
+        font-size: 16px;
+        color: #555;
+        line-height: 1.6;
+    }
+
+</style>
+<body>
+    <div>
+        <h2>Json data</h2>
+        <p id="load-data"></p>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url:'json/file.json',
+                type:'GET',
+                success:function(data){
+                    console.log(data);
+              //  $('#load-data').append(data.id + "<br>" + data.title + "<br>" + data.body);
+              $.each(data, function(key, value) {
+                console.log(value.id + " "+ value.title );
+                $('#load-data').append(value.id + " " + value.title + "<br>" );
+            });
+              }
+            });
+        });
+
+
+    </script>
+</body>
+</html>
